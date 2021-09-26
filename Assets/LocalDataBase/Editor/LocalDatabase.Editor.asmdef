@@ -1,0 +1,18 @@
+{
+    "name": "LocalDatabase.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:bf5ed5ebac728994e9d251306f2f7052"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
