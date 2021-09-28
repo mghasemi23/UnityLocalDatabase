@@ -65,20 +65,11 @@ namespace LocalDataBase
         #region Methods-> Public
 
         /// <summary>
-        /// Checks if Given Key is Available in DB
-        /// </summary>
-        /// <param name="key"></param>
-        public static bool HasKey(string key)
-        {
-            return prefsHashtable.ContainsKey(key);
-        }
-
-        /// <summary>
         /// Save String in DB
         /// </summary>
         /// <param name="key"></param>
         /// <param name="String"></param>
-        public static void SaveString(string key, string value)
+        public static void AddString(string key, string value)
         {
             if (!prefsHashtable.ContainsKey(key))
             {
@@ -97,7 +88,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Integer"></param>
-        public static void SaveInt(string key, int value)
+        public static void AddInt(string key, int value)
         {
             if (!prefsHashtable.ContainsKey(key))
             {
@@ -116,7 +107,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Float"></param>
-        public static void SaveFloat(string key, float value)
+        public static void AddFloat(string key, float value)
         {
             if (!prefsHashtable.ContainsKey(key))
             {
@@ -135,7 +126,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Bool"></param>
-        public static void SaveBool(string key, bool value)
+        public static void AddBool(string key, bool value)
         {
             if (!prefsHashtable.ContainsKey(key))
             {
@@ -154,7 +145,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Long"></param>
-        public static void SaveLong(string key, long value)
+        public static void AddLong(string key, long value)
         {
             if (!prefsHashtable.ContainsKey(key))
             {
@@ -172,7 +163,7 @@ namespace LocalDataBase
         /// Returns String form DB, If unavailabe Rrturns Null 
         /// </summary>
         /// <param name="key"></param>
-        public static string LoadString(string key)
+        public static string GetString(string key)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -187,7 +178,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        public static string LoadString(string key, string defaultValue)
+        public static string GetString(string key, string defaultValue)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -205,7 +196,7 @@ namespace LocalDataBase
         /// Returns Ineger from DB, If unavailabe Rrturns 0
         /// </summary>
         /// <param name="key"></param>
-        public static int LoadInt(string key)
+        public static int GetInt(string key)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -219,7 +210,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        public static int LoadInt(string key, int defaultValue)
+        public static int GetInt(string key, int defaultValue)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -237,7 +228,7 @@ namespace LocalDataBase
         /// Returns Long from DB,  If unavailabe Rrturns 0
         /// </summary>
         /// <param name="key"></param>
-        public static long LoadLong(string key)
+        public static long GetLong(string key)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -252,7 +243,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        public static long LoadLong(string key, long defaultValue)
+        public static long GetLong(string key, long defaultValue)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -270,7 +261,7 @@ namespace LocalDataBase
         /// Returns Float from DB, If unavailabe Rrturns 0.0f
         /// </summary>
         /// <param name="key"></param>
-        public static float LoadFloat(string key)
+        public static float GetFloat(string key)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -285,7 +276,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param
-        public static float LoadFloat(string key, float defaultValue)
+        public static float GetFloat(string key, float defaultValue)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -303,7 +294,7 @@ namespace LocalDataBase
         /// Returns Bool from DB, If unavailabe Rrturns flase
         /// </summary>
         /// <param name="key"></param>
-        public static bool LoadBool(string key)
+        public static bool GetBool(string key)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -318,7 +309,7 @@ namespace LocalDataBase
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        public static bool LoadBool(string key, bool defaultValue)
+        public static bool GetBool(string key, bool defaultValue)
         {
             if (prefsHashtable.ContainsKey(key))
             {
@@ -330,6 +321,24 @@ namespace LocalDataBase
                 hashTableChanged = true;
                 return defaultValue;
             }
+        }
+
+        /// <summary>
+        /// Returns All Data in HashTable
+        /// </summary>
+        /// <returns></returns>
+        public static Hashtable GetAllData()
+        {
+            return prefsHashtable;
+        }
+
+        /// <summary>
+        /// Checks if Given Key is Available in DB
+        /// </summary>
+        /// <param name="key"></param>
+        public static bool HasKey(string key)
+        {
+            return prefsHashtable.ContainsKey(key);
         }
 
         /// <summary>
