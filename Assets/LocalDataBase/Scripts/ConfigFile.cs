@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace LocalDataBase
 {
+    /// <summary>
+    /// Scriptable Objcet to Save Configurations
+    /// </summary>
     public class ConfigFile : ScriptableObject
     {
         [HideInInspector] [SerializeField] private bool isEncrypted;
@@ -17,7 +20,6 @@ namespace LocalDataBase
             this.isEncrypted = isEncrypted;
             this.fileName = fileName;
         }
-
 
         /// <summary>
         /// Returns Save File Name

@@ -7,57 +7,40 @@ using System.Security.Cryptography;
 
 namespace LocalDataBase
 {
-    public static class CustomDataBase
+    public static class DataBase
     {
-        private static readonly Hashtable playerPrefsHashtable = new Hashtable();
+        #region Varioables
+
+        private static readonly Hashtable prefsHashtable = new Hashtable();
         private static bool hashTableChanged = false;
         private static string serializedOutput = "";
         private static string serializedInput = "";
         private const string PARAMETERS_SEPERATOR = ";";
         private const string KEY_VALUE_SEPERATOR = ":";
         private static string[] seperators = new string[] { PARAMETERS_SEPERATOR, KEY_VALUE_SEPERATOR };
-        private static readonly string fileName;
-        private static readonly string secureFileName = Application.persistentDataPath + "/AdvancedPlayerPrefs.txt";
+        private static string fileName;
         private static byte[] bytes = ASCIIEncoding.ASCII.GetBytes(SystemInfo.deviceUniqueIdentifier.Substring(0, 8));
         private static bool wasEncrypted = false;
         private static bool securityModeEnabled = false;
         private static ConfigFile configFile;
 
+        #endregion
 
-        static CustomDataBase()
+        #region Constuct
+
+        static DataBase()
         {
             LoadConfigFile();
 
-            fileName = Application.persistentDataPath + configFile.GetFileName() + ".LDB";
-
-#if !UNITY_WEBPLAYER
-            //load previous settings
             StreamReader fileReader = null;
-
-
-            if (File.Exists(secureFileName))
-            {
-                fileReader = new StreamReader(secureFileName);
-                wasEncrypted = true;
-                serializedInput = Decrypt(fileReader.ReadToEnd());
-            }
-            else if (File.Exists(fileName))
+            if (File.Exists(fileName))
             {
                 fileReader = new StreamReader(fileName);
-                serializedInput = fileReader.ReadToEnd();
+                serializedInput = wasEncrypted ? Decrypt(fileReader.ReadToEnd()) : fileReader.ReadToEnd();
             }
-#else
-			
-			if(UnityEngine.PlayerPrefs.HasKey("encryptedData")) {
-				securityModeEnabled = bool.Parse(UnityEngine.PlayerPrefs.GetString("encryptedData"));
-				serializedInput = (securityModeEnabled?Decrypt(UnityEngine.PlayerPrefs.GetString("data")):UnityEngine.PlayerPrefs.GetString("data"));
-			}
-			
-#endif
 
             if (!string.IsNullOrEmpty(serializedInput))
             {
-                //In the old PlayerPrefs, a WriteLine was used to write to the file.
                 if (serializedInput.Length > 0 && serializedInput[serializedInput.Length - 1] == '\n')
                 {
                     serializedInput = serializedInput.Substring(0, serializedInput.Length - 1);
@@ -71,236 +54,312 @@ namespace LocalDataBase
                 Deserialize();
             }
 
-#if !UNITY_WEBPLAYER
             if (fileReader != null)
             {
                 fileReader.Close();
             }
-#endif
-
         }
 
+        #endregion
+
+        #region Methods-> Public
+
+        /// <summary>
+        /// Checks if Given Key is Available in DB
+        /// </summary>
+        /// <param name="key"></param>
         public static bool HasKey(string key)
         {
-            return playerPrefsHashtable.ContainsKey(key);
+            return prefsHashtable.ContainsKey(key);
         }
 
-        public static void SetString(string key, string value)
+        /// <summary>
+        /// Save String in DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="String"></param>
+        public static void SaveString(string key, string value)
         {
-            if (!playerPrefsHashtable.ContainsKey(key))
+            if (!prefsHashtable.ContainsKey(key))
             {
-                playerPrefsHashtable.Add(key, value);
+                prefsHashtable.Add(key, value);
             }
             else
             {
-                playerPrefsHashtable[key] = value;
+                prefsHashtable[key] = value;
             }
 
             hashTableChanged = true;
         }
 
-        public static void SetInt(string key, int value)
+        /// <summary>
+        /// Save Integer in DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="Integer"></param>
+        public static void SaveInt(string key, int value)
         {
-            Debug.Log(key);
-            Debug.Log(value);
-
-            if (!playerPrefsHashtable.ContainsKey(key))
+            if (!prefsHashtable.ContainsKey(key))
             {
-                playerPrefsHashtable.Add(key, value);
+                prefsHashtable.Add(key, value);
             }
             else
             {
-                playerPrefsHashtable[key] = value;
-            }
-
-            hashTableChanged = true;
-
-            Debug.Log("Changed: " + hashTableChanged);
-        }
-
-        public static void SetFloat(string key, float value)
-        {
-            if (!playerPrefsHashtable.ContainsKey(key))
-            {
-                playerPrefsHashtable.Add(key, value);
-            }
-            else
-            {
-                playerPrefsHashtable[key] = value;
+                prefsHashtable[key] = value;
             }
 
             hashTableChanged = true;
         }
 
-        public static void SetBool(string key, bool value)
+        /// <summary>
+        /// Save Float in DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="Float"></param>
+        public static void SaveFloat(string key, float value)
         {
-            if (!playerPrefsHashtable.ContainsKey(key))
+            if (!prefsHashtable.ContainsKey(key))
             {
-                playerPrefsHashtable.Add(key, value);
+                prefsHashtable.Add(key, value);
             }
             else
             {
-                playerPrefsHashtable[key] = value;
+                prefsHashtable[key] = value;
             }
 
             hashTableChanged = true;
         }
 
-        public static void SetLong(string key, long value)
+        /// <summary>
+        /// Save Bool in DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="Bool"></param>
+        public static void SaveBool(string key, bool value)
         {
-            if (!playerPrefsHashtable.ContainsKey(key))
+            if (!prefsHashtable.ContainsKey(key))
             {
-                playerPrefsHashtable.Add(key, value);
+                prefsHashtable.Add(key, value);
             }
             else
             {
-                playerPrefsHashtable[key] = value;
+                prefsHashtable[key] = value;
             }
 
             hashTableChanged = true;
         }
 
-        public static string GetString(string key)
+        /// <summary>
+        /// Save Long in DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="Long"></param>
+        public static void SaveLong(string key, long value)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (!prefsHashtable.ContainsKey(key))
             {
-                return playerPrefsHashtable[key].ToString();
+                prefsHashtable.Add(key, value);
+            }
+            else
+            {
+                prefsHashtable[key] = value;
+            }
+
+            hashTableChanged = true;
+        }
+
+        /// <summary>
+        /// Returns String form DB, If unavailabe Rrturns Null 
+        /// </summary>
+        /// <param name="key"></param>
+        public static string LoadString(string key)
+        {
+            if (prefsHashtable.ContainsKey(key))
+            {
+                return prefsHashtable[key].ToString();
             }
 
             return null;
         }
 
-        public static string GetString(string key, string defaultValue)
+        /// <summary>
+        /// Returns String from DB, If unavailabe Adds a string with given key and defaultValue to DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public static string LoadString(string key, string defaultValue)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return playerPrefsHashtable[key].ToString();
+                return prefsHashtable[key].ToString();
             }
             else
             {
-                playerPrefsHashtable.Add(key, defaultValue);
+                prefsHashtable.Add(key, defaultValue);
                 hashTableChanged = true;
                 return defaultValue;
             }
         }
 
-        public static int GetInt(string key)
+        /// <summary>
+        /// Returns Ineger from DB, If unavailabe Rrturns 0
+        /// </summary>
+        /// <param name="key"></param>
+        public static int LoadInt(string key)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (int)playerPrefsHashtable[key];
+                return (int)prefsHashtable[key];
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Returns Integer from DB, If unavailabe Adds a Integer with given key and defaultValue to DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public static int LoadInt(string key, int defaultValue)
+        {
+            if (prefsHashtable.ContainsKey(key))
+            {
+                return (int)prefsHashtable[key];
+            }
+            else
+            {
+                prefsHashtable.Add(key, defaultValue);
+                hashTableChanged = true;
+                return defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// Returns Long from DB,  If unavailabe Rrturns 0
+        /// </summary>
+        /// <param name="key"></param>
+        public static long LoadLong(string key)
+        {
+            if (prefsHashtable.ContainsKey(key))
+            {
+                return (long)prefsHashtable[key];
             }
 
             return 0;
         }
 
-        public static int GetInt(string key, int defaultValue)
+        /// <summary>
+        /// Returns Long from DB, If unavailabe Adds a Long with given key and defaultValue to DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public static long LoadLong(string key, long defaultValue)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (int)playerPrefsHashtable[key];
+                return (long)prefsHashtable[key];
             }
             else
             {
-                playerPrefsHashtable.Add(key, defaultValue);
+                prefsHashtable.Add(key, defaultValue);
                 hashTableChanged = true;
                 return defaultValue;
             }
         }
 
-        public static long GetLong(string key)
+        /// <summary>
+        /// Returns Float from DB, If unavailabe Rrturns 0.0f
+        /// </summary>
+        /// <param name="key"></param>
+        public static float LoadFloat(string key)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (long)playerPrefsHashtable[key];
-            }
-
-            return 0;
-        }
-
-        public static long GetLong(string key, long defaultValue)
-        {
-            if (playerPrefsHashtable.ContainsKey(key))
-            {
-                return (long)playerPrefsHashtable[key];
-            }
-            else
-            {
-                playerPrefsHashtable.Add(key, defaultValue);
-                hashTableChanged = true;
-                return defaultValue;
-            }
-        }
-
-        public static float GetFloat(string key)
-        {
-            if (playerPrefsHashtable.ContainsKey(key))
-            {
-                return (float)playerPrefsHashtable[key];
+                return (float)prefsHashtable[key];
             }
 
             return 0.0f;
         }
 
-        public static float GetFloat(string key, float defaultValue)
+        /// <summary>
+        /// Returns Float from DB, If unavailabe Adds a Float with given key and defaultValue to DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param
+        public static float LoadFloat(string key, float defaultValue)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (float)playerPrefsHashtable[key];
+                return (float)prefsHashtable[key];
             }
             else
             {
-                playerPrefsHashtable.Add(key, defaultValue);
+                prefsHashtable.Add(key, defaultValue);
                 hashTableChanged = true;
                 return defaultValue;
             }
         }
 
-        public static bool GetBool(string key)
+        /// <summary>
+        /// Returns Bool from DB, If unavailabe Rrturns flase
+        /// </summary>
+        /// <param name="key"></param>
+        public static bool LoadBool(string key)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (bool)playerPrefsHashtable[key];
+                return (bool)prefsHashtable[key];
             }
 
             return false;
         }
 
-        public static bool GetBool(string key, bool defaultValue)
+        /// <summary>
+        /// Returns Bool from DB, If unavailabe Adds a Bool with given key and defaultValue to DB
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        public static bool LoadBool(string key, bool defaultValue)
         {
-            if (playerPrefsHashtable.ContainsKey(key))
+            if (prefsHashtable.ContainsKey(key))
             {
-                return (bool)playerPrefsHashtable[key];
+                return (bool)prefsHashtable[key];
             }
             else
             {
-                playerPrefsHashtable.Add(key, defaultValue);
+                prefsHashtable.Add(key, defaultValue);
                 hashTableChanged = true;
                 return defaultValue;
             }
         }
 
-        public static void DeleteKey(string key)
+        /// <summary>
+        /// Delete a field from DB
+        /// </summary>
+        /// <param name="key"></param>
+        public static void DeleteField(string key)
         {
-            playerPrefsHashtable.Remove(key);
+            prefsHashtable.Remove(key);
         }
 
-        public static void DeleteAll()
+        /// <summary>
+        /// Delete all Field from DB
+        /// </summary>
+        public static void DeleteAllFields()
         {
-            playerPrefsHashtable.Clear();
+            prefsHashtable.Clear();
         }
 
-        //This is important to check to avoid a weakness in your security when you are using encryption to avoid the users from editing your playerprefs.
+        /// <summary>
+        /// Check if Data is Encrypted or Not
+        /// </summary>
         public static bool WasReadPlayerPrefsFileEncrypted()
         {
             return wasEncrypted;
         }
 
-        public static void EnableEncryption(bool enabled)
-        {
-            securityModeEnabled = enabled;
-        }
-
+        /// <summary>
+        /// Store All Data on Disk
+        /// </summary>
         public static void Flush()
         {
             if (hashTableChanged)
@@ -308,12 +367,11 @@ namespace LocalDataBase
                 Serialize();
 
                 string output = (securityModeEnabled ? Encrypt(serializedOutput) : serializedOutput);
-#if !UNITY_WEBPLAYER
+
                 StreamWriter fileWriter = null;
 
-                fileWriter = File.CreateText((securityModeEnabled ? secureFileName : fileName));
-
-                File.Delete((securityModeEnabled ? fileName : secureFileName));
+                File.Delete(fileName);
+                fileWriter = File.CreateText(fileName);
 
                 if (fileWriter == null)
                 {
@@ -325,20 +383,22 @@ namespace LocalDataBase
 
                 fileWriter.Close();
 
-#else
-					UnityEngine.PlayerPrefs.SetString("data", output);
-					UnityEngine.PlayerPrefs.SetString("encryptedData", securityModeEnabled.ToString());
-						
-					UnityEngine.PlayerPrefs.Save();
-#endif
-
                 serializedOutput = "";
             }
         }
 
+        #endregion
+
+        #region Methods-> Private
+
+        public static void EnableEncryption(bool enabled)
+        {
+            securityModeEnabled = enabled;
+        }
+
         private static void Serialize()
         {
-            IDictionaryEnumerator myEnumerator = playerPrefsHashtable.GetEnumerator();
+            IDictionaryEnumerator myEnumerator = prefsHashtable.GetEnumerator();
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             bool firstString = true;
             while (myEnumerator.MoveNext())
@@ -371,8 +431,16 @@ namespace LocalDataBase
             foreach (string parameter in parameters)
             {
                 string[] parameterContent = parameter.Split(new string[] { " " + KEY_VALUE_SEPERATOR + " " }, StringSplitOptions.None);
+                try
+                {
+                    prefsHashtable.Add(DeEscapeNonSeperators(parameterContent[0], seperators), GetTypeValue(parameterContent[2], DeEscapeNonSeperators(parameterContent[1], seperators)));
 
-                playerPrefsHashtable.Add(DeEscapeNonSeperators(parameterContent[0], seperators), GetTypeValue(parameterContent[2], DeEscapeNonSeperators(parameterContent[1], seperators)));
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    Debug.LogWarning("Data is Encrypted, Change Encrypt Setting or Delete Previous Database");
+                    return;
+                }
 
                 if (parameterContent.Length > 3)
                 {
@@ -430,11 +498,19 @@ namespace LocalDataBase
             {
                 return "";
             }
-            DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
-            MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(cryptedString));
-            CryptoStream cryptoStream = new CryptoStream(memoryStream, cryptoProvider.CreateDecryptor(bytes, bytes), CryptoStreamMode.Read);
-            StreamReader reader = new StreamReader(cryptoStream);
-            return reader.ReadToEnd();
+            try
+            {
+                DESCryptoServiceProvider cryptoProvider = new DESCryptoServiceProvider();
+                MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(cryptedString));
+                CryptoStream cryptoStream = new CryptoStream(memoryStream, cryptoProvider.CreateDecryptor(bytes, bytes), CryptoStreamMode.Read);
+                StreamReader reader = new StreamReader(cryptoStream);
+                return reader.ReadToEnd();
+            }
+            catch (FormatException)
+            {
+                Debug.LogWarning("Data is NOT Encrypted, Change Encrypt Setting or Delete Previous Database");
+                return "";
+            }
         }
 
         private static object GetTypeValue(string typeName, string value)
@@ -470,6 +546,11 @@ namespace LocalDataBase
         private static void LoadConfigFile()
         {
             configFile = Resources.Load<ConfigFile>("Config");
+            fileName = Application.persistentDataPath + "\\" + configFile.GetFileName() + ".LDB";
+            wasEncrypted = configFile.IsEncrypted();
+            EnableEncryption(wasEncrypted);
         }
+
+        #endregion
     }
 }

@@ -8,7 +8,7 @@ namespace LocalDataBase.Editor
     public class DataBaseBrowser : EditorWindow
     {
 
-        #region Methods->private
+        #region Methods-> private
 
         [MenuItem("Database/Data Browser", false, 30)]
         private static void OpenBrowserWindow()

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace LocalDataBase.Editor
 {
@@ -14,7 +15,7 @@ namespace LocalDataBase.Editor
 
         #endregion
 
-        #region Methods->private
+        #region Methods-> private
 
         /// <summary>
         /// Add Button to Unity Toolbar
@@ -66,6 +67,12 @@ namespace LocalDataBase.Editor
 
                 SaveConfigChanges();
             }
+
+            GUI.color = Color.red;
+            if (GUILayout.Button("Delete Database"))
+            {
+                File.Delete(Application.persistentDataPath + "\\" + fileName + ".LDB");
+            }
         }
 
         /// <summary>
@@ -75,7 +82,6 @@ namespace LocalDataBase.Editor
         {
             configFile.SetProperties(isEncrypted, fileName);
         }
-
 
         /// <summary>
         /// Returns Config Scriptable Object
